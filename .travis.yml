@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Sta99tLfrthSZQyg8vRzGPmUcF4+Dc0IOQvMSnLbUD6w26RzIy8/kxJkojTg/1XKn2UT52AiuaQO8edaLj4rxJqa6OEtUDwknGAbqDpJ5TVP7iKQ4M79Wdokz6lUakHlbX5BbU+WqZpr0nmevSpXdcRin9Lb03XwViUByF5Ve+GXzO4fsbSJDVaLbsu6R4XdwjvkPBPyWCPDoNeMby+wjZtNLRNMIlYukrkFLQ/xuMIwx9RJj1IOzOzLPGwLXPl36QpBA2tQ9Fb1IXTJcCmzWNwHf4NZONY5YT72otrZoQwA9JH+spTssZbPPEq5N6WeI/buMaTmMbznfrGvLDS6HJXiuuTdEdTsVhrvVtPqcOV1YXk3sdXg9DLUZAXKW3IQypbyc+E+lAbN9jYrRo1a2qnYD1VzCqpN3xrD4yyq7Ub2VLOveM3dX38U2/KXpMcOLmK+z7GqbECWb9ivDjHJXO4N5g7WxuXtDQ62dKJFJKUv2Yoii7Hi2lXBygwf4jFjzFg6MFvJyzLpabwH7MKZIXcIIpiIyP6O+B/ieJ1b6oAXFETU3KaYRBD/lHAlBwmWx6a4iTK2DZqFUJ2BCiD3xXPj71+nEv9n+K3KiamrSimT0NENiXXX+n26Y4zN/kvMvLXqljJL5mbpkahdl7gPuVz1NTdxn7mI9sIdVKdjZ0I=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Twin-Hells--13-A-Thrilling-Narrative-of-Life-in-the-Kansas-and-Missouri-Penitentiaries_1318
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
